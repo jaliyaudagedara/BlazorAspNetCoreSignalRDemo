@@ -1,0 +1,25 @@
+﻿
+@using AspNetCoreSignalRDemo.Shared
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>User</th>
+            <th>Message</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Messages)
+        {
+            <tr>
+                <td>@item.Name</td>
+                <td>@item.Message</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@functions {
+    [Parameter]
+    List<MessageModel> Messages { get; set; }
+}

@@ -1,0 +1,67 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width">
+    <title>AspNetCoreSignalRDemo</title>
+    <base href="/" />
+    <link href="css/bootstrap/bootstrap.min.css" rel="stylesheet" />
+    <link href="css/site.css" rel="stylesheet" />
+</head>
+<body>
+    <app>Loading...</app>
+
+    <script type="blazor-boot">
+    </script>
+
+    <script src="js/signalr/signalr.min.js"></script>
+
+    <script>
+        const assemblyName = 'AspNetCoreSignalRDemo.Client';
+        const namespace = 'AspNetCoreSignalRDemo.Client.Pages';
+        const typeName = 'Index';
+        const methodName = 'AddMessage';
+
+        var connection = new signalR.HubConnectionBuilder()
+            .withUrl('/chat')
+            .build();
+        
+        connection.on('broadcastMessage', function (name, message) {
+            console.log("Received : " + name + " : " + message);
+
+            const addMessageMethod = Blazor.platform.findMethod(
+                assemblyName,
+                namespace,
+                typeName,
+                methodName
+            );
+
+            let _name = Blazor.platform.toDotNetString(name);
+            let _message = Blazor.platform.toDotNetString(message);
+
+            Blazor.platform.callMethod(addMessageMethod, null, [
+                _name,
+                _message
+            ]);
+        });
+
+        Blazor.registerFunction('startConnection', (name) => {            
+            connection.start()
+                .then(function () {
+                    console.log('connection started');
+                    connection.invoke('send', name, "Connected");
+                })
+                .catch(error => {
+                    console.error(error.message);
+                });
+
+            return true;
+        });
+
+        Blazor.registerFunction('sendMessage', (name, message) => {
+            connection.invoke('send', name, message);
+            return true;
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,52 @@
+﻿@page "/"
+
+@using AspNetCoreSignalRDemo.Shared
+@using Microsoft.AspNetCore.Blazor.Browser.Interop
+
+<h1>ASP.NET Core SignalR!</h1>
+
+<div class="form-inline">
+    <div class="form-group">
+        <label for="name">Name:</label>
+        <input type="text" class="form-control" id="name" bind="@name" />
+    </div>
+    <div class="form-group">
+        <button class="btn btn-primary" onclick="@JoinRoom">Join</button>
+    </div>
+
+    <div class="form-group">
+        <label for="message">Message:</label>
+        <input type="text" class="form-control" id="message" bind="@message" />
+    </div>
+    <div class="form-group">
+        <button class="btn btn-primary" onclick="@SendMessage">Send</button>
+    </div>
+
+   <ChatMessages Messages="messages" />
+</div>
+
+@functions {
+    string name = "";
+    string message = "";
+    static List<MessageModel> messages = new List<MessageModel>();
+
+    void JoinRoom(UIMouseEventArgs e)
+    {
+        RegisteredFunction.Invoke<bool>("startConnection", name);
+    }
+
+    void SendMessage(UIMouseEventArgs e)
+    {
+        RegisteredFunction.Invoke<bool>("sendMessage", name, message);
+        message = "";
+    }
+
+    public static void AddMessage(string name, string message)
+    {
+        Console.WriteLine($"{name}:{message}");
+
+        messages.Add(new MessageModel() { Name = name, Message = message });
+
+        Console.WriteLine(messages.Count());
+    }
+}
